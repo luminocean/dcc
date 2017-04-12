@@ -1,22 +1,31 @@
 import re
+from collections import OrderedDict
 
-TOKEN_REGEXES = {
-    'SEMICOLON': re.compile(r'(;)'),
-    'BUILTIN_TYPE': re.compile(r'(int|float)'),
-    "WHILE": re.compile(r'(while)'),
-    "IF": re.compile(r'(if)'),
-    "INTEGER": re.compile(r'([+-]?(?:(?:0|[1-9])\d*))'),
-    "STRING": re.compile(r'"(.*)(?<!\\)"'),
-    'ID': re.compile(r'([a-z][a-z0-9_]*)(?!a-z0-9)'),
-    'ASSIGN': re.compile(r'(=)[^=]'),
-    'NEW_LINE': re.compile(r'(\n)'),
-    "OP": re.compile(r'(\()'),
-    "CP": re.compile(r'(\))'),
-    "OB": re.compile(r'({)'),
-    "CB": re.compile(r'(})'),
-    "INCR": re.compile(r'(\+=)'),
-    "DECR": re.compile(r'(-=)')
-}
+TOKEN_REGEXES = OrderedDict([
+    ('SEMICOLON', re.compile(r'(;)')),
+    ('BUILTIN_TYPE', re.compile(r'(int|float)')),
+    ('INTEGER', re.compile(r'([+-]?(?:(?:0|[1-9])\d*))')),
+    ('WHILE', re.compile(r'(while)')),
+    ('IF', re.compile(r'(if)')),
+    ('STRING', re.compile(r'"(.*)(?<!\\)"')),
+    ('ID', re.compile(r'([a-z][a-z0-9_]*)(?!a-z0-9)')),
+    ('ASSIGN', re.compile(r'(=)[^=]')),
+    ('NEW_LINE', re.compile(r'(\n)')),
+    ('OP', re.compile(r'(\()')),
+    ('CP', re.compile(r'(\))')),
+    ('OB', re.compile(r'({)')),
+    ('CB', re.compile(r'(})')),
+    ('PLUS', re.compile(r'(\+)')),
+    ('MINUS', re.compile(r'(-)')),
+    ('MULTIPLY', re.compile(r'(\*)')),
+    ('DIVIDE', re.compile(r'(\\)')),
+    ('EQ', re.compile(r'(==)')),
+    ('GT', re.compile(r'(>)')),
+    ('GE', re.compile(r'(>=)')),
+    ('LT', re.compile(r'(<)')),
+    ('LE', re.compile(r'(<=)')),
+    ('NE', re.compile(r'(!=)'))
+])
 
 class Token():
     def __init__(self, token_type, value):
@@ -24,7 +33,7 @@ class Token():
         self.value = value
 
     def __str__(self):
-        return "(%s, %s)" % (self.type, self.value)
+        return '(%s, %s)' % (self.type, self.value)
 
 class Tokenizer():
     def __init__(self, input_file):
@@ -52,6 +61,7 @@ class Tokenizer():
                     token = Token(token_type, m[1])
                     buffer = buffer[len(m[0]):]
                     yield (token, buffer)
+                    break # start a new loop
             if not has_match: # no match in this batch, stop iteration
                 break
         return (None, buffer)

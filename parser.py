@@ -128,6 +128,19 @@ class Statement():
 
 class Expression():
     def __init__(self):
+        self.unit = None
+        self.rest = None
+        self.parse()
+
+    def parse(self):
+        self.unit = ExprUnit()
+        self.rest = ExprRest()
+
+    def __str__(self):
+        return '[expression] %s %s' % (self.unit, self.rest)
+
+class ExprUnit():
+    def __init__(self):
         self.core = None
         self.type = None
         self.parse()
@@ -146,6 +159,32 @@ class Expression():
     def __str__(self):
         return str(self.core)
 
+class ExprRest():
+    def __init__(self):
+        self.unit = None
+        self.op = None
+        self.rest = None
+        self.parse()
+
+    def parse(self):
+        for biop in ['PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE']:
+            if token.type == biop:
+                self.op = match(biop)
+                self.unit = ExprUnit()
+                self.rest = ExprRest()
+
+        for cmpop in ['EQ', 'GT', 'GE', 'LT', 'LE', 'NE']:
+            if token.type == cmpop:
+                self.op = match(cmpop)
+                self.unit = ExprUnit()
+
+    def __str__(self):
+        if self.rest:
+            return '%s %s %s' % (self.op, self.unit, self.rest)
+        elif self.op and self.unit:
+            return '%s %s' % (self.op, self.unit)
+        return ''
+
 class IdExpr():
     def __init__(self):
         self.id = None
@@ -159,14 +198,6 @@ class IdExpr():
         if token.type == 'ASSIGN':
             match('ASSIGN')
             self.type = 'assignment'
-            self.value = Expression()
-        elif token.type == 'INCR':
-            match('INCR')
-            self.type = 'increasement'
-            self.value = Expression()
-        elif token.type == 'DECR':
-            match('DECR')
-            self.type = 'decreasement'
             self.value = Expression()
 
     def __str__(self):

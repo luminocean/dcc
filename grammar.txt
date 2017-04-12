@@ -1,5 +1,5 @@
 block := block_unit block
-           | None
+           | NONE
 
 block_unit := statement
            | while_loop
@@ -12,14 +12,26 @@ definition := type ID = expression
 
 type := BUILTIN_TYPE
 
-expression := id_expr
-           | STRING
+expression := expr_unit expr_rest
+
+expr_rest := + expr_unit expr_rest
+          | - expr_unit expr_rest
+          | * expr_unit expr_rest
+          | \ expr_unit expr_rest
+          | == expr_uni
+          | > expr_unit
+          | >= expr_unit
+          | < expr_unit
+          | <= expr_unit
+          | != expr_unit
+          | NONE
+
+expr_unit := STRING
            | INTEGER
+           | id_expr
 
 id_expr := ID
         | ID = expression
-        | ID += expression
-        | ID -= expression
 
 while_loop := WHILE OP expression CP OB block CB
 
