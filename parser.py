@@ -129,12 +129,18 @@ class Statement():
 class Expression():
     def __init__(self):
         self.core = None
+        self.type = None
         self.parse()
 
     def parse(self):
         if token.type == 'STRING':
+            self.type = 'string'
             self.core = match('STRING')
+        if token.type == 'INTEGER':
+            self.type = 'integer'
+            self.core = match('INTEGER')
         elif token.type == 'ID':
+            self.type = 'assignference'
             self.core = Assignference()
 
     def __str__(self):

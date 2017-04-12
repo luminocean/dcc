@@ -5,6 +5,7 @@ TOKEN_REGEXES = {
     'BUILTIN_TYPE': re.compile(r'(int|float)'),
     "WHILE": re.compile(r'(while)'),
     "IF": re.compile(r'(if)'),
+    "INTEGER": re.compile(r'([+-]?(?:(?:0|[1-9])\d*))'),
     "STRING": re.compile(r'"(.*)(?<!\\)"'),
     'ID': re.compile(r'([a-z][a-z0-9_]*)(?!a-z0-9)'),
     'ASSIGN': re.compile(r'(=)[^=]'),

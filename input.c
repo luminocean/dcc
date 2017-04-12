@@ -5,6 +5,6 @@ while (count){
     float time = pprr;
     count = "hel\"lo";
     if (aas){
-        count = "sadas";
+        count = -100;
     }
 }
