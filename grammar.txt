@@ -1,0 +1,14 @@
+block := statement block
+           | None
+
+statement := definition
+          | expression ;
+
+definition := type ID = expression
+
+type := BUILTIN_TYPE
+
+expression := assignment
+           | ID
+
+assignment := ID = expression
