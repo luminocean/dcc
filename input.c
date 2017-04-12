@@ -2,5 +2,6 @@ int count = ass;
 qoo = sadasd;
 sdww;
 while (count){
-    count = sade;
+    float time = pprr;
+    count = "hel\"lo";
 }

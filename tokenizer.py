@@ -3,20 +3,24 @@ import re
 TOKEN_REGEXES = {
     'SEMICOLON': re.compile(r'(;)'),
     'BUILTIN_TYPE': re.compile(r'(int|float)'),
-    'ID': re.compile(r'([a-z][a-z0-9_]*)[^a-z0-9]'),
+    "WHILE": re.compile(r'(while)'),
+    "STRING": re.compile(r'"(.*)(?<!\\)"'),
+    'ID': re.compile(r'([a-z][a-z0-9_]*)(?!a-z0-9)'),
     'ASSIGN': re.compile(r'(=)[^=]'),
     'NEW_LINE': re.compile(r'(\n)'),
     "OP": re.compile(r'(\()'),
     "CP": re.compile(r'(\))'),
     "OB": re.compile(r'({)'),
-    "CB": re.compile(r'(})'),
-    "WHILE": re.compile(r'(while)')
+    "CB": re.compile(r'(})')
 }
 
 class Token():
     def __init__(self, token_type, value):
         self.type = token_type
         self.value = value
+
+    def __str__(self):
+        return "(%s, %s)" % (self.type, self.value)
 
 class Tokenizer():
     def __init__(self, input_file):
@@ -42,7 +46,7 @@ class Tokenizer():
                 if m:
                     has_match = True
                     token = Token(token_type, m[1])
-                    buffer = buffer[len(m[1]):]
+                    buffer = buffer[len(m[0]):]
                     yield (token, buffer)
             if not has_match: # no match in this batch, stop iteration
                 break

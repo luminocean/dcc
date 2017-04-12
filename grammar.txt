@@ -11,9 +11,10 @@ definition := type ID = expression
 
 type := BUILTIN_TYPE
 
-expression := assignment
-           | ID
+expression := assignference
+           | STRING
 
-assignment := ID = expression
+assignference := ID
+              | ID = expression
 
 while_loop := WHILE OP expression CP OB block CB

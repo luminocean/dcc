@@ -68,7 +68,7 @@ class While():
         match('CB')
 
     def __str__(self):
-        return '%s (%s) {%s}' % ('[while]', self.expression, self.block)
+        return '%s (%s) {\n%s\n}' % ('[while]', self.expression, self.block)
 
 class Definition():
     def __init__(self):
@@ -106,23 +106,45 @@ class Statement():
 
 class Expression():
     def __init__(self):
-        self.id = match('ID')
-        self.assigner = None
-        if token.type == 'ASSIGN':
-            match('ASSIGN')
-            self.assigner = Expression()
+        self.core = None
+        self.parse()
+
+    def parse(self):
+        if token.type == 'STRING':
+            self.core = match('STRING')
+        elif token.type == 'ID':
+            self.core = Assignference()
 
     def __str__(self):
-        if self.assigner:
-            return "[%s] %s = %s" % ('assginment', self.id, self.assigner)
-        else:
-            return "[%s] %s" % ('reference', self.id)
+        return str(self.core)
+
+class Assignference():
+    def __init__(self):
+        self.id = None
+        self.value = None
+        self.type = None
+        self.parse()
+
+    def parse(self):
+        self.id = match('ID')
+        self.type = 'reference'
+        if token.type == 'ASSIGN':
+            match('ASSIGN')
+            self.type = 'assignment'
+            self.value = Expression()
+
+    def __str__(self):
+        if self.type == 'assignment':
+            return '[%s] %s = %s' % (self.type, self.id, self.value)
+        elif self.type == 'reference':
+            return '[%s] %s' % (self.type, self.id)
 
 def match(token_type):
     global token
     if token.type == token_type:
         value = token.value
         token = next_token()
+        print("------" + str(token))
         return value # return value of a token
     else:
         raise Exception('PARSE ERROR')
