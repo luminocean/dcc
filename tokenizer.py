@@ -13,7 +13,9 @@ TOKEN_REGEXES = {
     "OP": re.compile(r'(\()'),
     "CP": re.compile(r'(\))'),
     "OB": re.compile(r'({)'),
-    "CB": re.compile(r'(})')
+    "CB": re.compile(r'(})'),
+    "INCR": re.compile(r'(\+=)'),
+    "DECR": re.compile(r'(-=)')
 }
 
 class Token():

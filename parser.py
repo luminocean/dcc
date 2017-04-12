@@ -140,13 +140,13 @@ class Expression():
             self.type = 'integer'
             self.core = match('INTEGER')
         elif token.type == 'ID':
-            self.type = 'assignference'
-            self.core = Assignference()
+            self.type = 'id_expr'
+            self.core = IdExpr()
 
     def __str__(self):
         return str(self.core)
 
-class Assignference():
+class IdExpr():
     def __init__(self):
         self.id = None
         self.value = None
@@ -160,12 +160,24 @@ class Assignference():
             match('ASSIGN')
             self.type = 'assignment'
             self.value = Expression()
+        elif token.type == 'INCR':
+            match('INCR')
+            self.type = 'increasement'
+            self.value = Expression()
+        elif token.type == 'DECR':
+            match('DECR')
+            self.type = 'decreasement'
+            self.value = Expression()
 
     def __str__(self):
         if self.type == 'assignment':
             return '[%s] %s = %s' % (self.type, self.id, self.value)
         elif self.type == 'reference':
             return '[%s] %s' % (self.type, self.id)
+        elif self.type == 'increasement':
+            return '[%s] %s += %s' % (self.type, self.id, self.value)
+        elif self.type == 'decreasement':
+            return '[%s] %s -= %s' % (self.type, self.id, self.value)
 
 def match(token_type):
     global token
