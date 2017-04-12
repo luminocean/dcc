@@ -3,6 +3,7 @@ block := block_unit block
 
 block_unit := statement
            | while_loop
+           | if
 
 statement := definition
           | expression ;
@@ -18,3 +19,5 @@ assignference := ID
               | ID = expression
 
 while_loop := WHILE OP expression CP OB block CB
+
+if := IF OP expression CP OB block CB

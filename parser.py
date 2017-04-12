@@ -26,8 +26,9 @@ class Block():
         self.parse()
 
     def parse(self):
+        # ENTRY
         while token and (token.type == 'ID' or token.type == 'BUILTIN_TYPE' \
-            or token.type == 'WHILE'):
+            or token.type == 'WHILE' or token.type == 'IF'):
             unit = BlockUnit()
             self.units.append(unit)
             skip_new_lines()
@@ -48,6 +49,9 @@ class BlockUnit():
         elif token.type == 'WHILE':
             self.type = 'while'
             self.core = While()
+        elif token.type == 'IF':
+            self.type = 'if'
+            self.core = If()
 
     def __str__(self):
         return str(self.core)
@@ -69,6 +73,24 @@ class While():
 
     def __str__(self):
         return '%s (%s) {\n%s\n}' % ('[while]', self.expression, self.block)
+
+class If():
+    def __init__(self):
+        self.expression = None
+        self.block = None
+        self.parse()
+
+    def parse(self):
+        match('IF')
+        match('OP')
+        self.expression = Expression()
+        match('CP')
+        match('OB')
+        self.block = Block()
+        match('CB')
+
+    def __str__(self):
+        return '%s (%s) {\n%s\n}' % ('[if]', self.expression, self.block)
 
 class Definition():
     def __init__(self):

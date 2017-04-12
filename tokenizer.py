@@ -4,6 +4,7 @@ TOKEN_REGEXES = {
     'SEMICOLON': re.compile(r'(;)'),
     'BUILTIN_TYPE': re.compile(r'(int|float)'),
     "WHILE": re.compile(r'(while)'),
+    "IF": re.compile(r'(if)'),
     "STRING": re.compile(r'"(.*)(?<!\\)"'),
     'ID': re.compile(r'([a-z][a-z0-9_]*)(?!a-z0-9)'),
     'ASSIGN': re.compile(r'(=)[^=]'),
