@@ -22,17 +22,53 @@ token = next_token()
 
 class Block():
     def __init__(self):
-        self.statements = []
+        self.units = []
         self.parse()
 
     def parse(self):
-        while token:
-            stmt = Statement()
-            self.statements.append(stmt)
-            match('NEW_LINE')
+        while token and (token.type == 'ID' or token.type == 'BUILTIN_TYPE' \
+            or token.type == 'WHILE'):
+            unit = BlockUnit()
+            self.units.append(unit)
+            skip_new_lines()
 
     def __str__(self):
-        return '\n'.join(map(str, self.statements))
+        return '\n'.join(map(str, self.units))
+
+class BlockUnit():
+    def __init__(self):
+        self.type = None
+        self.core = None
+        self.parse()
+
+    def parse(self):
+        if token.type == 'ID' or token.type == 'BUILTIN_TYPE':
+            self.type = 'statement'
+            self.core = Statement()
+        elif token.type == 'WHILE':
+            self.type = 'while'
+            self.core = While()
+
+    def __str__(self):
+        return str(self.core)
+
+class While():
+    def __init__(self):
+        self.expression = None
+        self.block = None
+        self.parse()
+
+    def parse(self):
+        match('WHILE')
+        match('OP')
+        self.expression = Expression()
+        match('CP')
+        match('OB')
+        self.block = Block()
+        match('CB')
+
+    def __str__(self):
+        return '%s (%s) {%s}' % ('[while]', self.expression, self.block)
 
 class Definition():
     def __init__(self):
@@ -90,6 +126,10 @@ def match(token_type):
         return value # return value of a token
     else:
         raise Exception('PARSE ERROR')
+
+def skip_new_lines():
+    while token and token.type == 'NEW_LINE':
+        match('NEW_LINE')
 
 tree = Block()
 print(tree)

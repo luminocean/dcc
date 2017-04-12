@@ -1,5 +1,8 @@
-block := statement block
+block := block_unit block
            | None
+
+block_unit := statement
+           | while_loop
 
 statement := definition
           | expression ;
@@ -12,3 +15,5 @@ expression := assignment
            | ID
 
 assignment := ID = expression
+
+while_loop := WHILE OP expression CP OB block CB

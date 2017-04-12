@@ -6,6 +6,11 @@ TOKEN_REGEXES = {
     'ID': re.compile(r'([a-z][a-z0-9_]*)[^a-z0-9]'),
     'ASSIGN': re.compile(r'(=)[^=]'),
     'NEW_LINE': re.compile(r'(\n)'),
+    "OP": re.compile(r'(\()'),
+    "CP": re.compile(r'(\))'),
+    "OB": re.compile(r'({)'),
+    "CB": re.compile(r'(})'),
+    "WHILE": re.compile(r'(while)')
 }
 
 class Token():
