@@ -12,26 +12,34 @@ definition := type ID = expression
 
 type := BUILTIN_TYPE
 
-expression := expr_unit expr_rest
+expression := equality_expression
+           | ID = expression
 
-expr_rest := + expr_unit expr_rest
-          | - expr_unit expr_rest
-          | * expr_unit expr_rest
-          | \ expr_unit expr_rest
-          | == expr_uni
-          | > expr_unit
-          | >= expr_unit
-          | < expr_unit
-          | <= expr_unit
-          | != expr_unit
-          | NONE
+equality_expression := relational-expression equality_expression_rest
+equality_expression_rest := == relational-expression equality_expression_rest
+                         | != relational-expression equality_expression_rest
+                         | NONE
 
-expr_unit := STRING
-           | INTEGER
-           | id_expr
+relational_expression := additive_expression relational_expression_rest
+relational_expression_rest := < additive_expression relational_expression_rest
+                           | <= additive_expression relational_expression_rest
+                           | > additive_expression relational_expression_rest
+                           | >= additive_expression relational_expression_rest
+                           | NONE
 
-id_expr := ID
-        | ID = expression
+additive_expression := multiplicative_expression additive_expression_rest
+additive_expression_rest := + multiplicative_expression additive_expression_rest
+                         | - multiplicative_expression additive_expression_rest
+                         | NONE
+
+multiplicative_expression := primary_expression multiplicative_expression_rest
+multiplicative_expression_rest := * primary_expression multiplicative_expression_rest
+                               | / primary_expression multiplicative_expression_rest
+
+primary_expression := ID
+                   | STRING
+                   | INTEGER
+                   | ( expression )
 
 while_loop := WHILE OP expression CP OB block CB
 

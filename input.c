@@ -1,8 +1,9 @@
 int count = 20;
+count;
 while (count){
     float time = pprr;
     count = "hel\"lo";
-    if (aas){
-        count = -100;
+    if ( count < ffs ){
+        count = -10 + 5 * 12;
     }
 }

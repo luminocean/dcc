@@ -7,18 +7,55 @@ def token_generator():
         tokenizer = Tokenizer(input_file).token_generator()
         for token in tokenizer:
             yield token
+
 token_stream = token_generator()
+token_buffer = []
 def next_token():
     """
     fetch the next token
     returns None if no more tokens exist
     """
+    global token_buffer
+    if token_buffer:
+        tok = token_buffer[0]
+        token_buffer = token_buffer[1:]
+        return tok
     try:
         return next(token_stream)
     except StopIteration:
         return None
 
 token = next_token()
+
+def match(token_type):
+    global token
+    if token.type == token_type:
+        value = token.value
+        token = next_token()
+        print("------" + str(token))
+        return value # return value of a token
+    else:
+        raise Exception('PARSE ERROR')
+
+def peek(offset):
+    """
+    token == peek(0)
+    """
+    if offset == 0:
+        return token
+
+    # tok = None
+    for _ in range(offset):
+        try:
+            tok = next(token_stream)
+        except StopIteration:
+            return None
+        token_buffer.append(tok)
+    return tok
+
+def skip_new_lines():
+    while token and token.type == 'NEW_LINE':
+        match('NEW_LINE')
 
 class Block():
     def __init__(self):
@@ -123,23 +160,94 @@ class Statement():
             self.core = Expression()
 
         match('SEMICOLON')
+
     def __str__(self):
         return str(self.core) + ';'
 
 class Expression():
     def __init__(self):
-        self.unit = None
-        self.rest = None
+        self.type = None
+        self.id = None
+        self.core = None
         self.parse()
 
     def parse(self):
-        self.unit = ExprUnit()
-        self.rest = ExprRest()
+        if token.type == 'ID' and peek(1).type == 'ASSIGN':
+            self.type = 'assignment'
+            self.id = match('ID')
+            match('ASSIGN')
+            self.core = Expression()
+        else:
+            self.type = 'equality_expression'
+            self.core = EqualityExpr()
 
     def __str__(self):
-        return '[expression] %s %s' % (self.unit, self.rest)
+        if self.type == 'assignment':
+            return '[assignment] %s = %s' % (self.id, self.core)
+        else:
+            return '[expression] %s' % self.core
 
-class ExprUnit():
+class EqualityExpr():
+    def __init__(self):
+        self.operands = []
+        self.ops = []
+        self.parse()
+
+    def parse(self):
+        self.operands.append(RelationalExpr())
+        while token.type in ['EQ', 'NE']:
+            self.ops.append(match(token.type))
+            self.operands.append(RelationalExpr())
+
+    def __str__(self):
+        return ''.join(zip_operands(self.operands, self.ops))
+
+class RelationalExpr():
+    def __init__(self):
+        self.operands = []
+        self.ops = []
+        self.parse()
+
+    def parse(self):
+        self.operands.append(AdditiveExpr())
+        while token.type in ['LT', 'LE', 'GT', 'GE']:
+            self.ops.append(match(token.type))
+            self.operands.append(AdditiveExpr())
+
+    def __str__(self):
+        return ''.join(zip_operands(self.operands, self.ops))
+
+class AdditiveExpr():
+    def __init__(self):
+        self.operands = []
+        self.ops = []
+        self.parse()
+
+    def parse(self):
+        self.operands.append(MultiplicativeExpr())
+        while token.type in ['PLUS', 'MINUS']:
+            self.ops.append(match(token.type))
+            self.operands.append(MultiplicativeExpr())
+
+    def __str__(self):
+        return ''.join(zip_operands(self.operands, self.ops))
+
+class MultiplicativeExpr():
+    def __init__(self):
+        self.operands = []
+        self.ops = []
+        self.parse()
+
+    def parse(self):
+        self.operands.append(PrimaryExpr())
+        while token.type in ['MULTIPLY', 'DIVIDE']:
+            self.ops.append(match(token.type))
+            self.operands.append(PrimaryExpr())
+
+    def __str__(self):
+        return ''.join(zip_operands(self.operands, self.ops))
+
+class PrimaryExpr():
     def __init__(self):
         self.core = None
         self.type = None
@@ -149,82 +257,27 @@ class ExprUnit():
         if token.type == 'STRING':
             self.type = 'string'
             self.core = match('STRING')
-        if token.type == 'INTEGER':
+        elif token.type == 'INTEGER':
             self.type = 'integer'
             self.core = match('INTEGER')
         elif token.type == 'ID':
-            self.type = 'id_expr'
-            self.core = IdExpr()
+            self.type = 'reference'
+            self.core = match('ID')
+        elif token.type == 'OP':
+            self.type = 'expression'
+            match('OP')
+            self.core = Expression()
+            match('CP')
 
     def __str__(self):
-        return str(self.core)
+        return '[%s] %s' % (self.type, str(self.core))
 
-class ExprRest():
-    def __init__(self):
-        self.unit = None
-        self.op = None
-        self.rest = None
-        self.parse()
-
-    def parse(self):
-        for biop in ['PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE']:
-            if token.type == biop:
-                self.op = match(biop)
-                self.unit = ExprUnit()
-                self.rest = ExprRest()
-
-        for cmpop in ['EQ', 'GT', 'GE', 'LT', 'LE', 'NE']:
-            if token.type == cmpop:
-                self.op = match(cmpop)
-                self.unit = ExprUnit()
-
-    def __str__(self):
-        if self.rest:
-            return '%s %s %s' % (self.op, self.unit, self.rest)
-        elif self.op and self.unit:
-            return '%s %s' % (self.op, self.unit)
-        return ''
-
-class IdExpr():
-    def __init__(self):
-        self.id = None
-        self.value = None
-        self.type = None
-        self.parse()
-
-    def parse(self):
-        self.id = match('ID')
-        self.type = 'reference'
-        if token.type == 'ASSIGN':
-            match('ASSIGN')
-            self.type = 'assignment'
-            self.value = Expression()
-
-    def __str__(self):
-        if self.type == 'assignment':
-            return '[%s] %s = %s' % (self.type, self.id, self.value)
-        elif self.type == 'reference':
-            return '[%s] %s' % (self.type, self.id)
-        elif self.type == 'increasement':
-            return '[%s] %s += %s' % (self.type, self.id, self.value)
-        elif self.type == 'decreasement':
-            return '[%s] %s -= %s' % (self.type, self.id, self.value)
-
-def match(token_type):
-    global token
-    if token.type == token_type:
-        value = token.value
-        token = next_token()
-        print("------" + str(token))
-        return value # return value of a token
-    else:
-        raise Exception('PARSE ERROR')
-
-def skip_new_lines():
-    while token and token.type == 'NEW_LINE':
-        match('NEW_LINE')
+def zip_operands(operands, ops):
+    rest_pairs = [[ops[i], str(operands[i+1])] for i in range(len(ops))]
+    seq = [str(operands[0])]
+    for p in rest_pairs:
+        seq += p
+    return seq
 
 tree = Block()
 print(tree)
-
-
