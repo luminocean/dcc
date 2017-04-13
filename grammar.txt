@@ -35,6 +35,12 @@ additive_expression_rest := + multiplicative_expression additive_expression_rest
 multiplicative_expression := primary_expression multiplicative_expression_rest
 multiplicative_expression_rest := * primary_expression multiplicative_expression_rest
                                | / primary_expression multiplicative_expression_rest
+                               | % primary_expression multiplicative_expression_rest
+
+unary_expression := + unary_expression
+                 | - unary_expression
+                 | ! unary_expression
+                 | primary_expression
 
 primary_expression := ID
                    | STRING

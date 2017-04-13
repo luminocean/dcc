@@ -185,7 +185,7 @@ class Expression():
         if self.type == 'assignment':
             return '[assignment] %s = %s' % (self.id, self.core)
         else:
-            return '[expression] %s' % self.core
+            return '%s' % self.core
 
 class EqualityExpr():
     def __init__(self):
@@ -230,7 +230,7 @@ class AdditiveExpr():
             self.operands.append(MultiplicativeExpr())
 
     def __str__(self):
-        return ''.join(zip_operands(self.operands, self.ops))
+        return ' '.join(zip_operands(self.operands, self.ops))
 
 class MultiplicativeExpr():
     def __init__(self):
@@ -239,13 +239,28 @@ class MultiplicativeExpr():
         self.parse()
 
     def parse(self):
-        self.operands.append(PrimaryExpr())
-        while token.type in ['MULTIPLY', 'DIVIDE']:
+        self.operands.append(UnaryExpr())
+        while token.type in ['MULTIPLY', 'DIVIDE', 'MOD']:
             self.ops.append(match(token.type))
-            self.operands.append(PrimaryExpr())
+            self.operands.append(UnaryExpr())
 
     def __str__(self):
-        return ''.join(zip_operands(self.operands, self.ops))
+        return ' '.join(zip_operands(self.operands, self.ops))
+
+class UnaryExpr():
+    def __init__(self):
+        self.ops = []
+        self.core = None
+        self.parse()
+
+    def parse(self):
+        while token.type in ['PLUS', 'MINUS', 'NOT']:
+            self.ops.append(match(token.type))
+
+        self.core = PrimaryExpr()
+
+    def __str__(self):
+        return '%s%s' % (''.join(self.ops), self.core)
 
 class PrimaryExpr():
     def __init__(self):

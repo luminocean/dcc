@@ -1,9 +1,7 @@
-int count = 20;
-count;
+int count = -10 + (-5-1) * 10;
 while (count){
-    float time = pprr;
-    count = "hel\"lo";
-    if ( count < ffs ){
-        count = -10 + 5 * 12;
+    if (count % 2 == 0) {
+
     }
+    count = count + 1;
 }
